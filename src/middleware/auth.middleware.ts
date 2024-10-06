@@ -1,57 +1,68 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import db from '../database/connection';
 import dotenv from 'dotenv';
+import { string } from 'joi';
 
 dotenv.config();
 
 const jwtSecret = process.env.JWT_SECRET as string;
 
 class AuthMiddleware {
-    async authenticateToken(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const authHeader = req.headers['authorization'];
-            const token = authHeader && authHeader.split(' ')[1];
-            if (token == null) {
-                res.status(401).send({ message: 'Unauthorized: No token provided' });
-                return;
-            }
-            const decode = jwt.verify(token, jwtSecret);
-            if (!decode) {
-                res.status(403).send({ message: 'Forbidden: Invalid token' });
-                return;
-            }
-            next();
-        } catch (error) {
-           res.status(400).send('Token is invalid');
-           return;
+    // Hàm riêng để kiểm tra và giải mã token
+    private getTokenFromHeader(req: Request, res: Response): string | void {
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        if (!token) {
+            res.status(401).send({ message: 'Unauthorized: No token provided' });
+            return;
+        }
+        else {
+            return token;
         }
     }
 
-    authorize(allowedRoleId: number[]) {
+    // Hàm riêng để giải mã và kiểm tra tính hợp lệ của token
+    private verifyToken(token: string, res: Response): JwtPayload | string | void {
+        try {
+            const decoded = jwt.verify(token, jwtSecret);
+            return decoded;
+        }
+        catch (error) {
+            res.status(401).send({ message: 'Unauthorized: Invalid token' });
+            return;
+        }
+    }
+
+    // Xác thực token
+    authenticateToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+        try {
+            const token = this.getTokenFromHeader(req, res);
+            if (!token) return;
+            const decoded = this.verifyToken(token, res);
+            if (!decoded) return;
+            next();
+        }
+        catch (error) {
+            res.status(401).send({ message: 'Unauthorized: Invalid token' });
+        }
+    }
+
+    // Ủy quyền dựa trên roleId
+    authorize = (allowedRoleId: number[]) => {
         return (req: Request, res: Response, next: NextFunction): void => {
-            try {
-                const authHeader = req.headers['authorization'];
-                const token = authHeader && authHeader.split(' ')[1];
+            const token = this.getTokenFromHeader(req, res);
+            if (!token) return;
 
-                if (!token) {
-                   res.status(401).json({ message: 'Unauthorized: No token provided' });
-                   return; 
-                }
+            const decoded = this.verifyToken(token, res);
+            if (!decoded || typeof decoded == 'string') return;
 
-                const decoded = jwt.verify(token, jwtSecret) as JwtPayload;
-
-                const roleId = decoded.role[0].roleId;
-                if (!allowedRoleId.includes(roleId)) {
-                    res.status(403).json({ message: 'Forbidden: Insufficient privileges' });
-                    return;
-                }
-
-                next();
-            } catch (error) {
-                res.status(400).json({ message: 'Token is invalid' });
+            const roleId = decoded.role[0].roleId;
+            if (!allowedRoleId.includes(roleId)) {
+                res.status(403).json({ message: 'Forbidden: Insufficient privileges' });
                 return;
             }
+
+            next();
         };
     }
 }

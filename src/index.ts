@@ -5,7 +5,7 @@ import roleRouter from './routes/role.router';
 import authRouter from './routes/auth.router';
 import errorHandler from './middleware/errorHandler';
 import { ErrorRequestHandler } from 'express';
-import ApiError from './utils/ApiError';
+import customError from './utils/customError';
 
 dotenv.config();
 
@@ -25,11 +25,11 @@ app.use('/api', authRouter);
 
 // Test error route
 app.get('/error', (req: Request, res: Response, next: NextFunction) => {
-  next(new ApiError(500, 'Test error'));
+  next(new customError(500, 'Test error'));
 });
 
-app.use(errorHandler as ErrorRequestHandler);
-// app.use(errorHandler);
+// app.use(errorHandler as ErrorRequestHandler);
+app.use(errorHandler);
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}/`);

@@ -28,15 +28,15 @@ class UserController {
         }
     }
 
-    public async createUser(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const user = req.body;
-            const createStatus = await service.createUser(user);
-            res.status(201).send(createStatus);
-        } catch (error) {
-            next(error);
-        }
-    }
+    // public async createUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+    //     try {
+    //         const user = req.body;
+    //         const createStatus = await service.createUser(user);
+    //         res.status(201).send(createStatus);
+    //     } catch (error) {
+    //         next(error);
+    //     }
+    // }
 
     public async updateUser(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {

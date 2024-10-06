@@ -18,40 +18,38 @@ class RoleController {
         }
     }
 
-    public async createRole(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const role = req.body;
-            const createStatus = await service.createRole(role);
-            res.status(201).send(createStatus);
-        } catch (error) {
-            next(error);
-        }
-    }
+    // public async createRole(req: Request, res: Response, next: NextFunction): Promise<void> {
+    //     try {
+    //         const role = req.body;
+    //         const createStatus = await service.createRole(role);
+    //         res.status(201).send(createStatus);
+    //     } catch (error) {
+    //         next(error);
+    //     }
+    // }
 
-    public async updateRole(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const { id } = req.params;
-            const role = req.body;
-            const updateStatus = await service.updateRole(id, role);
-            res.status(200).send(updateStatus);
-        } catch (error) {
-            next(error);
-        }
-    }
+    // public async updateRole(req: Request, res: Response, next: NextFunction): Promise<void> {
+    //     try {
+    //         const { id } = req.params;
+    //         const role = req.body;
+    //         const updateStatus = await service.updateRole(id, role);
+    //         res.status(200).send(updateStatus);
+    //     } catch (error) {
+    //         next(error);
+    //     }
+    // }
 
-    public async deleteRole(req: Request, res: Response, next: NextFunction): Promise<void> {
-        try {
-            const { id } = req.params;
-            const deleteStatus = await service.deleteRole(id);
-            res.status(200).send(deleteStatus);
-        } catch (error) {
-            next(error);
-        }
-    }
+    // public async deleteRole(req: Request, res: Response, next: NextFunction): Promise<void> {
+    //     try {
+    //         const { id } = req.params;
+    //         const deleteStatus = await service.deleteRole(id);
+    //         res.status(200).send(deleteStatus);
+    //     } catch (error) {
+    //         next(error);
+    //     }
+    // }
 }
 
-// Tạo một instance của RoleController
 const roleController = new RoleController();
 
-// Xuất các phương thức của controller để sử dụng ở file khác
 export default roleController;
