@@ -60,8 +60,8 @@ class AuthService {
                 throw new customError(400, 'Invalid username or password');
             else {
                 // Create JWT token
-                const [roleId] = await db.query('SELECT roleId FROM users WHERE username = ?', [user.username]);
-                const token = jwt.sign({ role: roleId }, jwtSecret, { expiresIn: '1h' });
+                const [roleId, userId] = await db.query('SELECT roleId, id FROM users WHERE username = ?', [user.username]);
+                const token = jwt.sign({ role: roleId, userId: userId }, jwtSecret, { expiresIn: '1h' });
                 return {
                     status: 200,
                     message: 'Login successfully',

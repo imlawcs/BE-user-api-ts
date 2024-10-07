@@ -39,7 +39,8 @@ class AuthMiddleware {
             const token = this.getTokenFromHeader(req, res);
             if (!token) return;
             const decoded = this.verifyToken(token, res);
-            if (!decoded) return;
+            if (!decoded || typeof decoded == 'string') return;
+            req.user = decoded;
             next();
         }
         catch (error) {
